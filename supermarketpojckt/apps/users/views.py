@@ -1,30 +1,66 @@
-from django.http import HttpResponse
-from django.shortcuts import render
-# 引入验证模型model forms
-from users.forms import RegisterForms
+import random
+import re
+import uuid
 
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render, redirect
+# 引入验证模型model forms
+from db.helper import send_sms
+from users.forms import RegisterForms
+# 引入模型
+from users.models import UserModels
 # 引入继承
 from django.views import View
-#     # todo:checkbox 是否同意用户协议（先不验证）
-## todo:头像还没建
+# 引入加密
+from db.app_common import set_password
 
 
+# 生成验证码
+class Verification(View):
+    def post(self, request):
+        strs = ''.join([str(random.randint(0, 9)) for _ in range(4)])
 
+        text = "您的验证码是：" + strs + "。请不要把验证码泄露给其他人。"
+        print(text)
+        data = request.POST.get('phone', '')
+        m = re.findall(r'^1[34578]\d{9}$', data)
+        if m:
+            print(m)
+            # 把验证码保存到ssesion
+            request.session['verification'] = strs
+            request.session.set_expiry(60)
+
+            # 发送手机验证码
+            __business_id = uuid.uuid1()
+            params = "{\"code\":\"%s\"}" % text
+            mysend=send_sms(__business_id, data, "注册验证", "SMS_2245271", params)
+            print(mysend)
+            return JsonResponse({"code": 1})
+        else:
+            return JsonResponse({"code": 2})
+
+
+# 注册
 class Register(View):
     def get(self, request):
         return render(request, 'users/reg.html')
 
     def post(self, request):
-        data = request.POST
-        # print(data['checkbox'])
-        #
+        data = request.POST.dict()
+        verification = request.session.get('verification', '')
+        data['verification'] = verification
         form = RegisterForms(data)
-        # if form.is_valid():
-        #     cleane_data = form.cleaned_data
-        #     return HttpResponse('注册验证正确')
-        # else:
-        #     return render(request, 'users/reg.html', context=form)
-        return HttpResponse('注册post')
+        if form.is_valid():
+            cleane_data = form.cleaned_data
+            password = set_password(cleane_data['password'])
+            phone = cleane_data['phone']
+            UserModels.objects.create(phone=phone, password=password)
+            return redirect('users:login')
+        else:
+            context = {
+                'form': form
+            }
+            return render(request, 'users/reg.html', context=context)
 
 
 # 登录

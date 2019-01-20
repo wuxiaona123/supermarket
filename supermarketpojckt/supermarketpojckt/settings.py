@@ -28,7 +28,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -75,7 +74,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'supermarketpojckt.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
@@ -132,7 +130,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
@@ -148,13 +145,30 @@ USE_L10N = True
 # USE_TZ = True
 USE_TZ = False
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
-
+# 静态文件
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
+
+
+
+# 图片
+# MEDIA_ROOT = os.path.join(BASE_DIR, "blog", "media")  # blog是项目名，media是约定成俗的文件夹名
+# MEDIA_URL = "/media/"  # 跟STATIC_URL类似，指定用户可以通过这个路径找到文件
+
+# 在urls.py中
+# from django.views.static import serve
+# from upload import settings  # upload是站点名
+# url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+
+# 阿里云发送短信的  ACCESS_KEY
+ACCESS_KEY_ID = "LTAI2qSiJdWP87em"
+ACCESS_KEY_SECRET = "FzORQ587PgGBoOAdmxzCjaxQi8klUi"
+
+
+
 
 

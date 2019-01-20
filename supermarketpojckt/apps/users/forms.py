@@ -1,12 +1,17 @@
 # 引入继承
+import re
+
 from django import forms
 
 # 引入模型
 from users.models import UserModels
 
 
+
+
 # 验证注册
 class RegisterForms(forms.ModelForm):
+
     # 密码
     password = forms.CharField(max_length=10,
                                min_length=6,
@@ -25,15 +30,15 @@ class RegisterForms(forms.ModelForm):
                                  })
 
     # 验证码
-    yzm = forms.CharField(max_length=4,
-                          min_length=4,
+    yzm = forms.CharField(
                           error_messages={
                               'required': '请填写验证码',
-                              'max_length': '验证码为4个字符',
-                              'min_length': '验证码为4个字符',
                           })
 
-
+    # 是否同意用户协议
+    checkbox = forms.BooleanField(error_messages={
+        'required': '请阅读用户协议后同意',
+    })
 
     # 验证电话号码
     class Meta:
@@ -49,18 +54,31 @@ class RegisterForms(forms.ModelForm):
 
     # 再次验证手机号码，是否已经注册
     def clean_phone(self):
-        phone = self.cleaned_data['phone']
+        phone = self.cleaned_data.get('phone')
         ifexi = UserModels.objects.filter(phone=phone).exists()
         if ifexi:  # 数据库已经存在这个手机号码，不能让他注册
-            forms.ValidationError('手机号码已经注册')
-        else:   # 数据库不存在，可以让他继续注册
+            raise forms.ValidationError('手机号码已经注册')
+        else:  # 数据库不存在，可以让他继续注册
             return phone
-
 
     # 综合验证，验证两次密码是否一致
     def clean(self):
-        password = self.cleaned_data['password']
-        repassword = self.cleaned_data['repassword']
-        if password and repassword and password!=repassword:
-            raise forms.ValidationError({'repassword':'两次密码不一致'})
+        password = self.cleaned_data.get('password')
+        repassword = self.cleaned_data.get('repassword')
+        if password and repassword and password != repassword:
+            raise forms.ValidationError({'repassword': '两次密码不一致'})
         return self.cleaned_data
+
+
+
+
+    # # 验证  验证码
+    def clean_yzm(self):
+        yzm = self.cleaned_data['yzm']  # 用户传过来的验证码
+        verification = self.data.get('verification')   # 服务器保存的验证码
+        if yzm == verification:
+            return yzm
+        else:
+            raise forms.ValidationError('验证码错误')
+
+
