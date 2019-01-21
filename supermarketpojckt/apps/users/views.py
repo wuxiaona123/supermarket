@@ -14,6 +14,11 @@ from users.models import UserModels
 from django.views import View
 # 引入加密
 from db.app_common import set_password
+# 引入基础视图，判断是否登录
+from db.base_view import JudgeSignIn
+
+
+
 
 
 # 生成验证码
@@ -85,9 +90,11 @@ class Login(View):
 
 
 # 个人中心
-class PersonalCenter(View):
+class PersonalCenter(JudgeSignIn):
     def get(self, request):
         return render(request, 'users/member.html')
-
     def post(self, request):
-        return HttpResponse('个人中心post')
+        return render(request, 'users/member.html')
+
+
+
