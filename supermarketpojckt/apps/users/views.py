@@ -16,9 +16,8 @@ from django.views import View
 from db.app_common import set_password
 # 引入基础视图，判断是否登录
 from db.base_view import JudgeSignIn
-
-
-
+# 上传头像没有csrf
+from django.views.decorators.csrf import csrf_exempt
 
 
 # 生成验证码
@@ -93,8 +92,43 @@ class Login(View):
 class PersonalCenter(JudgeSignIn):
     def get(self, request):
         return render(request, 'users/member.html')
+
     def post(self, request):
         return render(request, 'users/member.html')
 
 
+# 个人资料
+class UserInfo(JudgeSignIn):
+    def get(self, request):
+        getid = request.session.get('id')
+        user = UserModels.objects.filter(id=getid).first()
+        context = {
+            'user': user
+        }
+        return render(request, 'users/infor.html', context=context)
 
+    def post(self, request):
+        data = request.POST
+        getid = request.session.get('id')
+        user = UserModels.objects.filter(id=getid)
+        user.update(nickname=data['nickname'],
+                    gender=data['gender'],
+                    birthday=data['birthday'],
+                    school=data['school'],
+                    address=data['address'],
+                    hometown=data['hometown'],
+                    )
+
+        context = {
+            'user': user.first()
+        }
+        return render(request, 'users/infor.html', context=context)
+
+
+# 上传头像
+@csrf_exempt
+def headimg(request):
+    user = UserModels.objects.get(pk=request.session.get("id"))
+    user.head = request.FILES['file']
+    user.save()
+    return JsonResponse({"status": "ok", "head": str(user.head)})

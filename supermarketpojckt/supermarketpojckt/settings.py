@@ -68,6 +68,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
             ],
         },
     },
@@ -153,37 +154,23 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 
-
-
 # 图片
-# MEDIA_ROOT = os.path.join(BASE_DIR, "blog", "media")  # blog是项目名，media是约定成俗的文件夹名
-# MEDIA_URL = "/media/"  # 跟STATIC_URL类似，指定用户可以通过这个路径找到文件
-
-# 在urls.py中
-# from django.views.static import serve
-# from upload import settings  # upload是站点名
-# url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+MEDIA_URL = "/static/media/"  # 跟STATIC_URL类似，指定用户可以通过这个路径找到文件
+MEDIA_ROOT = os.path.join(BASE_DIR, 'static/media')  # blog是项目名，media是约定成俗的文件夹名
 
 # 阿里云发送短信的  ACCESS_KEY
 ACCESS_KEY_ID = "LTAI2qSiJdWP87em"
 ACCESS_KEY_SECRET = "FzORQ587PgGBoOAdmxzCjaxQi8klUi"
 
-
-
 # 将session保存到redis数据库(先做登录)
 CACHES = {
-        "default": {
-            "BACKEND": "django_redis.cache.RedisCache",
-            "LOCATION": "redis://127.0.0.1:6379/1",
-            "OPTIONS": {
-                "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            }
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
     }
+}
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
-
-
-
-
-

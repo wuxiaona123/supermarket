@@ -24,11 +24,15 @@ class UserModels(BaseModel):
     )
     gender = models.SmallIntegerField(choices=choices, verbose_name='性别', default=3)
     # 头像
-    head = models.FileField(upload_to='images', default='images/favicon.png')
+    head = models.ImageField(upload_to='user/%y%m/%d', default='user/201901/21/favicon.png',verbose_name='头像')
     # 学校
     school = models.CharField(max_length=50, verbose_name='学校')
     # 老家
     hometown = models.CharField(max_length=100, verbose_name='老家')
+    # 位置
+    address = models.CharField(max_length=100, verbose_name='老家')
+    # 生日
+    birthday = models.DateField(auto_now_add=True,verbose_name='生日')
 
     def __str__(self):
         return self.phone
