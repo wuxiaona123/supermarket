@@ -1,5 +1,4 @@
 from django.conf.urls import url
-
 from apps.users.views import Register, Login, Verification, PersonalCenter, UserInfo, headimg
 
 urlpatterns = [
