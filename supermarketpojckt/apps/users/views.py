@@ -1,12 +1,13 @@
 import random
 import re
-import uuid
-
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
-# 引入验证模型model forms
+# 引入发送短信需要的uuid
+import uuid
+# 引入发送短信的配置
 from db.helper import send_sms
-from users.forms import RegisterForms
+# 引入验证模型model forms
+from users.forms import RegisterForms, LoginForms
 # 引入模型
 from users.models import UserModels
 # 引入继承
@@ -33,8 +34,8 @@ class Verification(View):
             # 发送手机验证码
             __business_id = uuid.uuid1()
             params = "{\"code\":\"%s\"}" % text
-            mysend=send_sms(__business_id, data, "注册验证", "SMS_2245271", params)
-            print(mysend)
+            mysend = send_sms(__business_id, data, "用户注册验证码", "SMS_2245271", params)
+            print(mysend.decode('utf-8'))
             return JsonResponse({"code": 1})
         else:
             return JsonResponse({"code": 2})
@@ -69,4 +70,24 @@ class Login(View):
         return render(request, 'users/login.html')
 
     def post(self, request):
-        return HttpResponse('登录post')
+        data = request.POST
+        form = LoginForms(data)
+        if form.is_valid():
+            user = form.cleaned_data.get('user')
+            request.session['id'] = user.pk
+            request.session['user'] = user.phone
+            return redirect('users:PersonalCenter ')
+        else:
+            context = {
+                'form': form
+            }
+            return render(request, 'users/login.html', context=context)
+
+
+# 个人中心
+class PersonalCenter(View):
+    def get(self, request):
+        return render(request, 'users/member.html')
+
+    def post(self, request):
+        return HttpResponse('个人中心post')
