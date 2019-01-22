@@ -23,26 +23,32 @@ from django.views.decorators.csrf import csrf_exempt
 # 生成验证码
 class Verification(View):
     def post(self, request):
-        strs = ''.join([str(random.randint(0, 9)) for _ in range(4)])
+        try:
+            # 获取手机号码
+            phone = request.POST.get('phone')
+            # 验证手机号是否正确
+            phone_re = re.compile('^1[3-9]\d{9}$')
+            res = re.search(phone_re, phone)
+            if res:
+                # 生成随机验证码
+                code = "".join([str(random.randint(0, 9)) for _ in range(4)])
+                print(code)
+                print("===========================")
+                # 把验证码保存到ssesion
+                request.session['verification'] = code
+                request.session.set_expiry(60)
+                # 发送短信验证码
+                __business_id = uuid.uuid1()
+                # 信息
+                params = "{\"code\":\"%s\",,\"product\":\"吴娟的测试短信\"}" % code
+                rs = send_sms(__business_id, phone, "注册验证", "SMS_2245271", params)
+                print(rs.decode('utf-8'))
+                return JsonResponse({'ok': 1, 'code': 200})
+            else:
+                return JsonResponse({'ok': 0, 'code': 500, 'msg': '手机号码格式错误！'})
+        except:
+            return JsonResponse({'ok': 0, 'code': 500, 'msg': '短信验证码发送失败'})
 
-        text = "您的验证码是：" + strs + "。请不要把验证码泄露给其他人。"
-        print(text)
-        data = request.POST.get('phone', '')
-        m = re.findall(r'^1[34578]\d{9}$', data)
-        if m:
-            print(m)
-            # 把验证码保存到ssesion
-            request.session['verification'] = strs
-            request.session.set_expiry(60)
-
-            # 发送手机验证码
-            __business_id = uuid.uuid1()
-            params = "{\"code\":\"%s\"}" % text
-            mysend = send_sms(__business_id, data, "用户注册验证码", "SMS_2245271", params)
-            print(mysend.decode('utf-8'))
-            return JsonResponse({"code": 1})
-        else:
-            return JsonResponse({"code": 2})
 
 
 # 注册

@@ -91,12 +91,10 @@
                 if (phonenum) {
                     $.ajax({
                         type: "POST",
-                        url: "{% url 'users:verification ' %}",
+                        url: "{% url 'users:verification' %}",
                         data: "phone=" + phonenum + '&csrfmiddlewaretoken=' + '{{ csrf_token }}',
                         success: function (msg) {
-                            if(msg.code==2){
-                                alert('电话号码格式错误！')
-                            }
+                                console.log(msg)
                         }
                     });
                 }
