@@ -38,7 +38,7 @@ class LoginForms(forms.ModelForm):
         try:
             user = UserModels.objects.get(phone=phone)
         except:
-            raise forms.ValidationError({'phone':'此号码未注册，请注册'})
+            raise forms.ValidationError({'phone': '此号码未注册，请注册'})
 
         password = set_password(data.get('password'))
 
@@ -47,12 +47,6 @@ class LoginForms(forms.ModelForm):
 
         data['user'] = user
         return data
-
-
-
-
-
-
 
 
 # 验证注册
@@ -122,3 +116,51 @@ class RegisterForms(forms.ModelForm):
             return yzm
         else:
             raise forms.ValidationError('验证码错误')
+
+
+# 验证修改密码
+class SetPasswordForm(forms.Form):
+    password = forms.CharField(max_length=10, min_length=6,
+                               error_messages={
+                                   "required": "旧密码必填",
+                                   "max_length": "密码长度不能大于10个字符",
+                                   "min_length": "标题长度不能小于6个字符",
+                               })
+
+    newpassword = forms.CharField(max_length=10, min_length=6,
+                                  error_messages={
+                                      "required": "新密码必填",
+                                      "max_length": "密码长度不能大于10个字符",
+                                      "min_length": "标题长度不能小于6个字符",
+                                  })
+
+    renewpassword = forms.CharField(max_length=10, min_length=6,
+                                    error_messages={
+                                        "required": "确认密码必填",
+                                        "max_length": "密码长度不能大于10个字符",
+                                        "min_length": "标题长度不能小于6个字符",
+                                    })
+
+
+
+    # 判断旧密码是否正确
+    def clean_password(self):
+        password = self.cleaned_data.get('password')
+        mipassword = set_password(password)
+        userid = self.data.get('userid')
+        try:
+            user = UserModels.objects.get(id=userid)
+        except:
+            raise forms.ValidationError('登录标识错误，请重新登录后再修改密码')
+        if mipassword == user.password:
+            return password
+        else:
+            raise forms.ValidationError('密码错误')
+
+    def clean(self):
+        newpassword = self.cleaned_data.get('newpassword')
+        renewpassword = self.cleaned_data.get('renewpassword')
+        if newpassword and renewpassword and newpassword != renewpassword:
+            raise forms.ValidationError({"renewpassword": "两次密码不一致"})
+        else:
+            return self.cleaned_data

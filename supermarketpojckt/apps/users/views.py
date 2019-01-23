@@ -7,7 +7,7 @@ import uuid
 # 引入发送短信的配置
 from db.helper import send_sms
 # 引入验证模型model forms
-from users.forms import RegisterForms, LoginForms
+from users.forms import RegisterForms, LoginForms, SetPasswordForm
 # 引入模型
 from users.models import UserModels
 # 引入继承
@@ -50,7 +50,6 @@ class Verification(View):
             return JsonResponse({'ok': 0, 'code': 500, 'msg': '短信验证码发送失败'})
 
 
-
 # 注册
 class Register(View):
     def get(self, request):
@@ -86,7 +85,7 @@ class Login(View):
             user = form.cleaned_data.get('user')
             request.session['id'] = user.pk
             request.session['user'] = user.phone
-            return redirect('users:PersonalCenter ')
+            return redirect('users:PersonalCenter')
         else:
             context = {
                 'form': form
@@ -138,3 +137,32 @@ def headimg(request):
     user.head = request.FILES['file']
     user.save()
     return JsonResponse({"status": "ok", "head": str(user.head)})
+
+
+# 安全设置
+class Saftystep(JudgeSignIn):
+    def get(self, request):
+        return render(request, 'users/saftystep.html')
+
+
+# 修改密码
+class SetPassword(JudgeSignIn):
+    def get(self, request):
+        return render(request, 'users/password.html')
+
+    def post(self, request):
+        data = request.POST
+        userid = request.session.get('id')
+        datas=data.dict()
+        datas['userid']=userid
+        form = SetPasswordForm(datas)
+        if form.is_valid():
+            context = {
+                'sec': '修改成功'
+            }
+            return render(request, 'users/password.html', context=context)
+        else:
+            context = {
+                'formdata': form
+            }
+            return render(request, 'users/password.html', context=context)
