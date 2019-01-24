@@ -1,12 +1,7 @@
 from django.contrib import admin
 # 引入模型
-from goods.models import GoodsClassModel, GoodsSKUModel, GoodsSPUModel, UnitModel, BannerModel, ActivityModel
-
-
-
-
-
-
+from goods.models import GoodsClassModel, GoodsSKUModel, GoodsSPUModel, UnitModel, BannerModel, ActivityModel, \
+    PhotoAlbumModel
 
 
 # 首页活动表
@@ -37,9 +32,6 @@ class ActivityModelAdmin(admin.ModelAdmin):
         ('图片地址', {"fields": ['imgUrl']}),
         ('url地址', {"fields": ['urlUrl']}),
     )
-
-
-
 
 
 # 首页轮播商品表
@@ -74,7 +66,6 @@ class RotationModelAdmin(admin.ModelAdmin):
 
 
 
-
 # 商品SKU表
 @admin.register(GoodsSKUModel)
 class GoodsSKUModelAdmin(admin.ModelAdmin):
@@ -85,7 +76,7 @@ class GoodsSKUModelAdmin(admin.ModelAdmin):
 
     # 自定义显示列，在models类中对字段有方法的就填方法名
     list_display = ['id', 'goodsname', 'goodsbrief', 'price', 'stock', 'sales', 'goodslogo', 'shelves',
-                          'goodsclass_id', 'spu_id', 'unit', 'add_time', 'up_time', 'is_delete']
+                    'goodsclass_id', 'spu_id', 'unit', 'add_time', 'up_time', 'is_delete']
 
     # 设置在列表页字段上添加一个 a标签, 从而进入到编辑页面,在models类中对字段有方法的就填方法名
     list_display_links = ['id', 'goodsname', 'goodsbrief', 'price', 'stock', 'sales', 'goodslogo', 'shelves',
@@ -111,6 +102,36 @@ class GoodsSKUModelAdmin(admin.ModelAdmin):
         ('商品分类ID', {"fields": ['goodsclass_id']}),
         ('商品spu_id', {"fields": ['spu_id']}),
         ('单位id', {"fields": ['unit']}),
+    )
+
+
+
+
+# Register your models here.
+# 商品相册表
+@admin.register(PhotoAlbumModel)
+class PhotoAlbumModelAdmin(admin.ModelAdmin):
+    list_per_page = 4  #: 每页显示条数
+
+    actions_on_top: True  # 操作是否在上面显示, 默认  True  ,反正两个相反
+    actions_on_bottom: True  # 操作是否在下面显示, 默认   False
+
+    # 自定义显示列，在models类中对字段有方法的就填方法名
+    list_display = ['id', 'goodsImg', 'goodsSKU', 'add_time', 'up_time', 'is_delete']
+
+    # 设置在列表页字段上添加一个 a标签, 从而进入到编辑页面,在models类中对字段有方法的就填方法名
+    list_display_links = ['id', 'goodsImg', 'goodsSKU', 'add_time', 'up_time', 'is_delete']
+
+    # 列表右侧栏过滤器,只能写一个
+    list_filter = ['goodsImg']
+
+    # 搜索框,搜索字段 也只能写一个
+    search_fields = ['goodsImg']
+
+    # 对可编辑区域分组,列表里面的字段填写模型的属性，
+    fieldsets = (
+        ('相册图片', {"fields": ['goodsImg']}),
+        ('商品id', {"fields": ['goodsSKU']}),
     )
 
 
@@ -165,9 +186,6 @@ class GoodsClassModelAdmin(admin.ModelAdmin):
     )
 
 
-
-
-
 # 商品SPU表
 @admin.register(GoodsSPUModel)
 class GoodsSPUModelAdmin(admin.ModelAdmin):
@@ -195,19 +213,3 @@ class GoodsSPUModelAdmin(admin.ModelAdmin):
         ('SPU名', {"fields": ['SPUname']}),
         ('SPU简介', {"fields": ['SPUdetails']}),
     )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

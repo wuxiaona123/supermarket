@@ -1,5 +1,10 @@
+# 引入富文本字段
+from ckeditor_uploader.fields import RichTextUploadingField
+# 引入继承类
 from django.db import models
+# 引入基础类
 from db.base_model import BaseModel
+# 引入字段验证器
 from django.core.validators import MinLengthValidator
 
 
@@ -20,6 +25,8 @@ class GoodsClassModel(BaseModel):
         db_table = 'GoodsClassModel'
         verbose_name = '商品分类表'  # 备注：此模型在后台django中admin管理名字为：班级表
         verbose_name_plural = verbose_name  # 复数名
+    def __str__(self):
+        return self.classname
 
 
 # 模型二：
@@ -29,12 +36,14 @@ class GoodsClassModel(BaseModel):
 # 详情
 class GoodsSPUModel(models.Model):
     SPUname = models.CharField(max_length=50, validators=[MinLengthValidator(2)], verbose_name='spu名称')
-    SPUdetails = models.CharField(max_length=50, validators=[MinLengthValidator(2)], verbose_name='spu详情')
+    SPUdetails = RichTextUploadingField(verbose_name='spu详情')
 
     class Meta:
         db_table = 'GoodsSPUModel'
         verbose_name = '商品SPU表'  # 备注：此模型在后台django中admin管理名字为：班级表
         verbose_name_plural = verbose_name  # 复数名
+    def __str__(self):
+        return self.SPUname
 
 
 # 模型三：
@@ -51,6 +60,8 @@ class UnitModel(BaseModel):
         db_table = 'UnitModel'
         verbose_name = '商品单位表'  # 备注：此模型在后台django中admin管理名字为：班级表
         verbose_name_plural = verbose_name  # 复数名
+    def __str__(self):
+        return self.unitname
 
 
 # 模型四：
@@ -81,7 +92,7 @@ class GoodsSKUModel(BaseModel):
     # 销量
     sales = models.PositiveIntegerField(verbose_name='销量')
     # LOGO地址
-    goodslogo = models.ImageField(upload_to='goods/%y%m/%d', verbose_name='商品logo')
+    goodslogo = models.ImageField(upload_to='goodslogo/%y%m/%d', verbose_name='商品logo')
     # 是否上架
     choic = (
         (0, '未上架'),
@@ -99,6 +110,8 @@ class GoodsSKUModel(BaseModel):
         db_table = 'GoodsSKUModel'
         verbose_name = '商品SKU表'  # 备注：此模型在后台django中admin管理名字为：班级表
         verbose_name_plural = verbose_name  # 复数名
+    def __str__(self):
+        return self.goodsname
 
 
 # 模型五：
@@ -115,8 +128,10 @@ class PhotoAlbumModel(BaseModel):
 
     class Meta:
         db_table = 'PhotoAlbumModel'
-        verbose_name = '商品相册表'  # 备注：此模型在后台django中admin管理名字为：班级表
+        verbose_name = '商品相册表'  # 备注：此模型在后台django中admin管理名字为：
         verbose_name_plural = verbose_name  # 复数名
+    def __str__(self):
+        return self.goodsImg.name
 
 
 
@@ -146,6 +161,8 @@ class BannerModel(BaseModel):
         db_table = 'BannerModel'
         verbose_name = '首页轮播商品表'  # 备注：此模型在后台django中admin管理名字为：班级表
         verbose_name_plural = verbose_name  # 复数名
+    def __str__(self):
+        return self.bannerName
 
 
 
@@ -169,3 +186,7 @@ class ActivityModel(BaseModel):
         db_table = 'ActivityModel'
         verbose_name = '首页活动表'  # 备注：此模型在后台django中admin管理名字为：班级表
         verbose_name_plural = verbose_name  # 复数名
+    def __str__(self):
+        return self.activityName
+
+

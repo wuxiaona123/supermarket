@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'goods.apps.GoodsConfig',
     'shoppingcarts.apps.ShoppingcartsConfig',
     'orders.apps.OrdersConfig',
+    'ckeditor',  # 添加ckeditor富文本编辑器
+    'ckeditor_uploader',  # 添加ckeditor富文本编辑器文件上传部件
 ]
 
 MIDDLEWARE = [
@@ -153,6 +155,9 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
+# 使用富文本框
+# STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
 
 # 图片
 MEDIA_URL = "/static/media/"  # 跟STATIC_URL类似，指定用户可以通过这个路径找到文件
@@ -174,3 +179,12 @@ CACHES = {
 }
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
+
+# 设置富文本ckeditor的上传目录
+CKEDITOR_UPLOAD_PATH = "uploads/"
+# 富文本编辑器样式配置
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',
+    },
+}
