@@ -294,9 +294,7 @@ right: 2.5rem; top:1.5rem; }
 .list-nav .current a{color: #cb2527;}
 .list-nav1 .current{ border-bottom: 1px solid #cb2527; }
 .list-nav1 .current a{color: #cb2527;}
-.list-price{ background:url(../images/order.png) no-repeat right center; padding-right: 20px; font-style: normal;}
-.list-price-top{ background:url(../images/order-top.png) no-repeat right center; padding-right: 20px; font-style: normal;}
-.list-price-bot{ background:url(../images/order-bot.png) no-repeat right center; padding-right: 20px; font-style: normal;}
+
 .banner img{ width: 100%; height: 100%;}
 .list-pro{ overflow: hidden; padding-bottom: 60px; margin-top: 60px;}
 .list-pro li{ position: relative; border-bottom: 1px solid #ddd; margin: 0px 3%; padding: 15px 0; overflow: hidden;}

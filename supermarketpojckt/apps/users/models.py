@@ -41,3 +41,29 @@ class UserModels(BaseModel):
         db_table = "user"  # 表名
         verbose_name = '用户表'
         verbose_name_plural = verbose_name
+
+
+
+
+
+class UserAddress(BaseModel):
+    """用户收货地址管理"""
+    user = models.ForeignKey(to="UserModels", verbose_name="创建人")
+    username = models.CharField(verbose_name="收货人", max_length=100)
+    phone = models.CharField(verbose_name="收货人电话",
+                             max_length=11,
+                             validators=[
+                                 RegexValidator('^1[3-9]\d{9}$', '电话号码格式错误')
+                             ])
+    hcity = models.CharField(verbose_name="省", max_length=100, blank=True, null=True)
+    hproper = models.CharField(verbose_name="市", max_length=100, blank=True, null=True)
+    harea = models.CharField(verbose_name="区", max_length=100)
+    brief = models.CharField(verbose_name="详细地址", max_length=255)
+    isDefault = models.BooleanField(verbose_name="是否设置为默认", default=False)
+
+    class Meta:
+        verbose_name = "收货地址管理"
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return "{}:{}".format(self.username,self.phone)

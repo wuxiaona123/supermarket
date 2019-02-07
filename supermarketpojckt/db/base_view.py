@@ -8,3 +8,6 @@ class JudgeSignIn(View):
     @method_decorator(judgeSignIn)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
+
+
+

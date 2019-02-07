@@ -1,7 +1,6 @@
 from django.conf.urls import url
-from apps.users.views import Register, Login, Verification, PersonalCenter, UserInfo, headimg, Saftystep, SetPassword
-
-
+from apps.users.views import Register, Login, Verification, PersonalCenter, UserInfo, headimg, Saftystep, SetPassword, \
+    Address, AddressList
 
 urlpatterns = [
     url(r'^$', Register.as_view(), name='register'),  # 注册
@@ -12,6 +11,8 @@ urlpatterns = [
     url(r'^headimg/$',headimg, name='headimg'),  # 上传头像
     url(r'^saftystep/$',Saftystep.as_view(), name='saftystep'),  # 安全设置
     url(r'^setpassword/$',SetPassword.as_view(), name='setpassword'),  # 设置密码
+    url(r'^address/$', Address.as_view(), name='收货地址添加'),
+    url(r'^address_list/$', AddressList.as_view(), name='收货地址列表'),
 ]
 
 

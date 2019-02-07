@@ -52,13 +52,14 @@
     <!--图片轮换-->
     <div class="am-slider am-slider-default" data-am-flexslider id="demo-slider-0">
         <ul class="am-slides">
-            <li><img src="{% static 'images/pic.png' %}"/></li>
-            <li><img src="{% static 'images/pic.png' %}"/></li>
+            {% for foo in photo %}
+                <li><img src="{{ MEDIA_URL }}{{ foo.goodsImg }}" style="width: 100%;height: 500px;"/></li>
+            {% endfor %}
         </ul>
     </div>
     <div class="detal-info" style="position: relative; width: 100%;">
-        <p>特价武夷山桐木关正山小种红茶高档礼盒</p>
-        <h2>商城价：<span>￥52.00</span></h2>
+        <p>{{ goods.first.goodsname }}</p>
+        <h2>商城价：<span>￥{{ goods.first.price }}</span></h2>
         <div class="heart">
             <img src="{% static 'images/herat.png' %}" width="25" id="imgflag" onclick="changeImage()"/>
             <p>收藏</p>
@@ -69,7 +70,6 @@
         <div class="d-stock">
             <a class="decrease">-</a>
             <input id="num" readonly="" class="text_box" name="" type="text" value="1">
-            <input id="id" type="hidden" value="644">
             <a class="increase">+</a>
             <span id="dprice" class="price" style="display:none"> 36</span>
         </div>
@@ -83,10 +83,7 @@
 
         <div class="am-tabs-bd">
             <div class="am-tab-panel am-fade am-in am-active detail " id="tab1">
-                <p>产地: 中国大陆</p>
-                <p>功效: 瘦身,美容,提神,抗氧化,保健,降三高</p>
-                <p>保质期: >2年</p>
-                <img src="{% static 'images/test11.png' %}"/>
+                {{ goods.first.goodsbrief }}
             </div>
             <div class="am-tab-panel am-fade detail " id="tab2">
                 <!--<div class="comment">
@@ -145,7 +142,7 @@
     <!--底部-->
     <div style=" height: 55px;"></div>
     <ul class="fix-shopping">
-        <li><a href="shopcart.html" class="join">加入购物车</a></li>
+        <li><a href="" class="join">加入购物车</a></li>
         <li><a href="tureorder.html" class="imm-buy">立即购买</a></li>
     </ul>
 {% endblock %}
@@ -163,7 +160,7 @@
                 current_num += 1;
                 self.siblings('input').val(current_num);
                 update_item(self.siblings('input').data('item-id'));
-            })
+            });
             $('.decrease').click(function () {
                 var self = $(this);
                 var current_num = parseInt(self.siblings('input').val());
@@ -172,7 +169,36 @@
                     self.siblings('input').val(current_num);
                     update_item(self.siblings('input').data('item-id'));
                 }
+            });
+
+            $('.join').on('click',function () {
+
+                var data = {
+                    "sku_id": "{{ goods.first.pk }}",
+                    "count": $('.text_box').val(),
+                    "csrfmiddlewaretoken": "{{ csrf_token }}"
+                };
+                $.post("{% url 'goods:addreducecar' %}", data, function (response) {
+                    if (response.error == "0") {
+                        //添加成功
+                        alert(response.msg)
+                    } else if (response.error == "1") {
+                        // 没有登录, 跳转到登录页面进行, 通过js代码实现跳转
+                        // 提示, 让用户选择是否登录
+                        if (confirm(response.msg)) {
+                            // js 实现跳转的方法
+                            location.href = "{% url 'users:login' %}"
+                        }
+                    } else {
+                        console.log(response.msg);
+                    }
+                });
+
+
+
+
             })
+
         })
     </script>
 {% endblock %}

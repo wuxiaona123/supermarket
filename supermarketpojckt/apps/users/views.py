@@ -7,13 +7,13 @@ import uuid
 # 引入发送短信的配置
 from db.helper import send_sms
 # 引入验证模型model forms
-from users.forms import RegisterForms, LoginForms, SetPasswordForm
+from users.forms import RegisterForms, LoginForms, SetPasswordForm, AddressAddForm
 # 引入模型
-from users.models import UserModels
+from users.models import UserModels, UserAddress
 # 引入继承
 from django.views import View
 # 引入加密
-from db.app_common import set_password
+from db.app_common import set_password, json_msg
 # 引入基础视图，判断是否登录
 from db.base_view import JudgeSignIn
 # 上传头像没有csrf
@@ -153,8 +153,8 @@ class SetPassword(JudgeSignIn):
     def post(self, request):
         data = request.POST
         userid = request.session.get('id')
-        datas=data.dict()
-        datas['userid']=userid
+        datas = data.dict()
+        datas['userid'] = userid
         form = SetPasswordForm(datas)
         if form.is_valid():
             context = {
@@ -166,3 +166,45 @@ class SetPassword(JudgeSignIn):
                 'formdata': form
             }
             return render(request, 'users/password.html', context=context)
+
+
+class AddressList(JudgeSignIn):
+    """收货地址列表"""
+
+    def get(self, request):
+        # 获取用户的收货地址
+        user_id = request.session.get("id")
+        user_addresses = UserAddress.objects.filter(user_id=user_id, is_delete=False).order_by("-isDefault")
+
+        # 渲染数据
+        context = {
+            'addresses': user_addresses
+        }
+        return render(request, 'users/address_list.html', context=context)
+
+
+class Address(JudgeSignIn):
+    """收货地址添加"""
+
+    def get(self, request):
+        return render(request, 'users/address.html')
+
+    def post(self, request):
+        # 接收参数
+        data = request.POST.dict()  # 强制转换成字典
+
+        # 字典保存用户
+        data['user_id'] = request.session.get("id")  # form自动转换功能
+
+        # 验证参数
+        form = AddressAddForm(data)
+        if form.is_valid():
+            form.instance.user = UserModels.objects.get(pk=data['user_id'])
+            form.save()
+            return JsonResponse(json_msg(0, '添加成功'))
+        else:
+            return JsonResponse(json_msg(1, "添加失败", data=form.errors))
+
+
+
+
