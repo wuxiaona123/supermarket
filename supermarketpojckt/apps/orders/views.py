@@ -1,3 +1,6 @@
+import os
+from time import sleep
+from alipay import AliPay
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 
@@ -14,6 +17,7 @@ from db.app_common import json_msg, get_car_key
 from db.base_view import JudgeSignIn
 from goods.models import GoodsSKUModel
 from orders.models import Transport, Order, OrderGoods, Payment
+from supermarketpojckt import settings
 from users.models import UserAddress, UserModels
 
 
@@ -227,25 +231,142 @@ class ShowOrder(JudgeSignIn):
 # 支付
 class PayOrder(JudgeSignIn):
     def post(self, request):
+        # 参数接收
+        payment = request.POST.get('radio10')
         order_sn = request.POST.get('order_sn')
-        radio10 = request.POST.get('radio10')
-        try:
-            order_sn = int(order_sn)
-            radio10 = int(radio10)
-        except:
-            return JsonResponse(json_msg(1, '参数错误！'))
-        # 支付时间
-        now = datetime.now()
-        try:
-            # 支付方式
-            payment = Payment.objects.get(pk=radio10)
-        except:
-            return JsonResponse(json_msg(2, '支付方式不存在！'))
-        # 修改订单状态，支付方式，支付时间
-        order = Order.objects.get(order_sn=order_sn)
-        order.order_status = 1
-        order.payment = payment
-        order.pay_time = now
-        order.save()
+        user_id = request.session.get('id')
 
-        return JsonResponse(json_msg(0, '支付成功！'))
+        # 判断参数合法性
+        try:
+            payment = int(payment)
+        except:
+            return JsonResponse(json_msg(1, "参数错误"))
+
+        # 支付方式存在
+        try:
+            payment = Payment.objects.get(pk=payment)
+        except Payment.DoesNotExist:
+            return JsonResponse(json_msg(2, "支付方式不存在"))
+
+        # 判断该订单是否是自己的, 并且是一个未支付的订单
+        try:
+            order = Order.objects.get(user_id=user_id, order_sn=order_sn, order_status=0)
+        except Order.DoesNotExist:
+            return JsonResponse(json_msg(3, "订单不满足要求"))
+
+        # 判断 用户是否需要使用支付宝支付
+        if payment.name == "支付宝":
+            # 构造支付请求
+            app_private_key_string = open(os.path.join(settings.BASE_DIR, "alipay/user_private_key.txt")).read()
+            alipay_public_key_string = open(os.path.join(settings.BASE_DIR, 'alipay/alipay_public_key.txt')).read()
+
+            # 初始化对象
+            alipay = AliPay(
+                appid="2016092400582019",
+                app_notify_url=None,  # 默认回调url
+                app_private_key_string=app_private_key_string,
+                # 支付宝的公钥，验证支付宝回传消息使用，不是你自己的公钥,
+                alipay_public_key_string=alipay_public_key_string,
+                sign_type="RSA2",  # RSA 或者 RSA2
+                debug=True  # 默认False
+            )
+
+            # 构造请求地址
+            order_string = alipay.api_alipay_trade_wap_pay(
+                out_trade_no=order.order_sn,  # 订单编号
+                total_amount=str(order.order_price),  # 订单金额
+                subject="义乌超市订单支付",  # 订单描述
+                return_url="http://127.0.0.1:8001/order/pay/",  # 同步通知地址
+                notify_url=None  # 异步通知地址 重要
+            )
+
+            # 拼接地址
+            url = "https://openapi.alipaydev.com/gateway.do?" + order_string
+
+            # 通过json返回请求地址
+            return JsonResponse(json_msg(0, "创建支付地址成功", data=url))
+        else:
+            return JsonResponse(json_msg(4, "该支付方式暂不支支持"))
+
+    # 之前的post支付（）
+    # def post(self, request):
+    #     order_sn = request.POST.get('order_sn')
+    #     radio10 = request.POST.get('radio10')
+    #     try:
+    #         order_sn = int(order_sn)
+    #         radio10 = int(radio10)
+    #     except:
+    #         return JsonResponse(json_msg(1, '参数错误！'))
+    #     # 支付时间
+    #     now = datetime.now()
+    #     try:
+    #         # 支付方式
+    #         payment = Payment.objects.get(pk=radio10)
+    #     except:
+    #         return JsonResponse(json_msg(2, '支付方式不存在！'))
+    #     # 修改订单状态，支付方式，支付时间
+    #     order = Order.objects.get(order_sn=order_sn)
+    #     order.order_status = 1
+    #     order.payment = payment
+    #     order.pay_time = now
+    #     order.save()
+    #     return JsonResponse(json_msg(0, '支付成功！'))
+
+
+
+
+
+class Pay(JudgeSignIn):
+    """展示支付结果"""
+
+    def get(self, request):
+
+        # 查询订单是否交易成功
+        # 构造支付请求
+        app_private_key_string = open(os.path.join(settings.BASE_DIR, "alipay/user_private_key.txt")).read()
+        alipay_public_key_string = open(os.path.join(settings.BASE_DIR, 'alipay/alipay_public_key.txt')).read()
+
+        # 初始化对象
+        alipay = AliPay(
+            appid="2016092400582019",
+            app_notify_url=None,  # 默认回调url
+            app_private_key_string=app_private_key_string,
+            # 支付宝的公钥，验证支付宝回传消息使用，不是你自己的公钥,
+            alipay_public_key_string=alipay_public_key_string,
+            sign_type="RSA2",  # RSA 或者 RSA2
+            debug=True  # 默认False
+        )
+
+        # 获取订单编号
+        order_sn = request.GET.get('out_trade_no')
+        total_amount = request.GET.get('total_amount')
+
+        # check order status
+        paid = False
+        for i in range(10):
+            # 根据订单编号查询
+            result = alipay.api_alipay_trade_query(out_trade_no=order_sn)
+            print(result)
+            if result.get("trade_status", "") == "TRADE_SUCCESS":
+                # 支付成功
+                paid = True
+                break
+
+            # 继续执行
+            # check every 3s, and 10 times in all
+            sleep(3)
+            print("not paid...")
+
+        # 判断支付是否成功
+        context = {
+            'order_sn': order_sn,
+            'total_amount': total_amount,
+        }
+        if paid is False:
+            # 支付失败
+            context['result'] = "支付失败"
+        else:
+            # 支付成功
+            context['result'] = "支付成功"
+
+        return render(request, "orders/pay.html", context=context)

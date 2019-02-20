@@ -71,6 +71,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # 让模板中使用{{MEDIA_URL}}
                 'django.template.context_processors.media',
             ],
         },
@@ -151,7 +152,7 @@ USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
-# 静态文件
+# 静态文件(已经配置七牛云，不需要这个了)
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
@@ -190,8 +191,6 @@ CKEDITOR_CONFIGS = {
     },
 }
 
-
-
 # 配置全文检索框架haystack支持whoosh搜索引擎
 # 全文检索框架的配置
 HAYSTACK_CONNECTIONS = {
@@ -202,5 +201,23 @@ HAYSTACK_CONNECTIONS = {
         'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
     },
 }
-#当添加、修改、删除数据时，自动生成索引
+# 当添加、修改、删除数据时，自动生成索引
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+
+# 七牛云密钥等配置
+# QINIU_ACCESS_KEY = 'Q6MzEa8J1YhKZgB7Sw6c0DSRM-jbai6rWAdBGc5R'
+# QINIU_SECRET_KEY = 'Nc79_Mfb25ZpbEOl1Yr7UPzfyxAaQRmtrBAWfo2u'
+# QINIU_BUCKET_NAME = 'img-juanjuan'
+# QINIU_BUCKET_DOMAIN = 'pmzx59y4x.bkt.clouddn.com/'
+# QINIU_SECURE_URL = False      #使用http
+# PREFIX_URL = 'http://'
+# # 上传文件地址配置
+# MEDIA_URL = PREFIX_URL + QINIU_BUCKET_DOMAIN
+# # 上传文件的存储引擎配置
+# DEFAULT_FILE_STORAGE = 'qiniustorage.backends.QiniuStorage'
+
+
+# 静态文件的url配置
+# STATIC_URL = QINIU_BUCKET_DOMAIN + '/static/'
+# 静态文件的存储引擎
+# STATICFILES_STORAGE = 'qiniustorage.backends.QiniuStaticStorage'

@@ -1,5 +1,4 @@
 from django.conf.urls import url
-
 from orders.views import ConfirmOrder, ShowOrder, PayOrder
 
 urlpatterns = [

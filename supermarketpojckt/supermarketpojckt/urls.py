@@ -20,8 +20,8 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^search/', include('haystack.urls')),# 全文搜索框架
     url(r'^ckeditor/', include("ckeditor_uploader.urls")),  # 上传部件自动调用的上传地址
-    url(r'^user/', include('apps.users.urls', namespace='users')),  # 用户app
-    url(r'^', include('apps.goods.urls', namespace='goods')),  # 商品app
-    url(r'^shoppingcart/', include('apps.shoppingcarts.urls', namespace='shoppingcart')),  # 购物车app
-    url(r'^orders/', include('apps.orders.urls', namespace='orders')),  # 订单app
+    url(r'^user/', include('users.urls', namespace='users')),  # 用户app
+    url(r'^', include('goods.urls', namespace='goods')),  # 商品app
+    url(r'^shoppingcart/', include('shoppingcarts.urls', namespace='shoppingcart')),  # 购物车app
+    url(r'^orders/', include('orders.urls', namespace='orders')),  # 订单app
 ]
